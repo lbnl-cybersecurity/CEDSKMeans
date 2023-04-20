@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "cedskmeans"
+version = "0.1.0"
+description = "A Differentially Private K-Means Clustering algorithm."
+authors = ["Nikhil Ravi <nr337@cornell.edu>"]
+license = "BSD-4-Clause"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+scikit-learn = "^1.2.2"
+numpy = "^1.24.2"
+sympy = "^1.11.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+flake8 = "^6.0.0"
+ipykernel = "^6.22.0"
+pandas = "^2.0.0"
+matplotlib = "^3.7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
