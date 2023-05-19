@@ -1,3 +1,3 @@
-from ._kmeans import KMeans_MR
+from ._kmeans import KMeansMapReduce
 
-__all__ = ["KMeans_MR"]
+__all__ = ["KMeansMapReduce"]

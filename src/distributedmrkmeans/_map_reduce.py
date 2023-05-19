@@ -29,7 +29,7 @@ def split_data(df, seed=None, num=3):
 
 
 @ray.remote
-class KMeans_Map:
+class KMeansMap:
     centroids = 0
 
     def __init__(self, item, k=1):
@@ -69,7 +69,7 @@ class KMeans_Map:
 
 
 @ray.remote
-class KMeans_Reduce:
+class KMeansReduce:
     def __init__(self, value, n_features, *kmeans_maps):
         self.value = value
         self.kmeans_maps = kmeans_maps
@@ -107,7 +107,7 @@ class KMeans_Reduce:
             return self.centroids
 
 
-def create_new_cluster(reducers: list[KMeans_Reduce], n_features: int):
+def create_new_cluster(reducers: list[KMeansReduce], n_features: int):
     cost = 0
     new_cluster = np.zeros((1, n_features))
     for reducer in reducers:
@@ -173,44 +173,7 @@ def find_closest_centroid(k, centroids, item, i, distances_matrix):
 
     return best_index, best_distance
 
-
-def initialize_clusters(data, n_clusters):
-    n_features = data.shape[1]
-    centroids = np.empty((n_clusters, n_features))
-    total_samples = data.shape[0]
-    sample_indices = np.arange(total_samples)
-    sample_probabilities = np.empty(shape=(1, total_samples), dtype=np.float32)
-
-    first_center = np.random.randint(0, data.shape[0])
-    centroids[0] = data.loc[first_center]
-
-    for i in range(1, n_clusters):
-        index_row = 0
-        total_distance = 0
-
-        for row in data.values:
-            min_distance = np.inf
-
-            for j in range(i):
-                distance_j = np.linalg.norm(row - centroids[j])
-
-                if distance_j < min_distance:
-                    min_distance = distance_j
-
-            total_distance += min_distance
-            sample_probabilities[0][index_row] = min_distance
-            index_row += 1
-
-        sample_probabilities = sample_probabilities / total_distance
-        chosen_index = np.random.choice(
-            sample_indices, p=sample_probabilities[0].ravel()
-        )
-        centroids[i] = data.loc[chosen_index]
-
-    return centroids
-
-
-def initialize_clusters_sklearn(data, n_clusters, random_state=None):
+def initialize_clusters(data, n_clusters, random_state=None):
     if isinstance(data, pd.DataFrame):
         data_c = data.copy()
         data_c = data_c.values
@@ -226,8 +189,6 @@ def initialize_clusters_sklearn(data, n_clusters, random_state=None):
 def calculate_distance_matrix(center):
     n = center.shape[0]
     distance_matrix = np.empty((n, n))
-    # differences = np.diff(center, axis=0)
-    # distance_matrix[:-1, 1:] = np.linalg.norm(differences, axis=1).reshape(-1, 1)
     for i in range(n - 1):
         distance_matrix[i, i + 1] = np.linalg.norm(center[i + 1, :] - center[i, :])
     return distance_matrix
