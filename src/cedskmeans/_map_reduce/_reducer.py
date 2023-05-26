@@ -15,7 +15,7 @@ class KMeansReduce:
     Attributes:
         value (int): The value associated with the reducer.
         kmeans_maps (list[ray.actor.ActorHandle]): List of K-Means mapper handles.
-        centroids (None | np.ndarray): The computed centroids of the clusters.
+        centroid (None | np.ndarray): The computed centroid of the cluster.
         cluster_output (np.ndarray): The combined cluster output.
         cost (float): The cost of the clustering.
     """
@@ -25,7 +25,7 @@ class KMeansReduce:
     ) -> None:
         self.value = value
         self.kmeans_maps = kmeans_maps
-        self.centroids = None
+        self.centroid = None
         self.cluster_output = np.zeros((1, n_features))
         self.cost = 0
 
@@ -49,23 +49,39 @@ class KMeansReduce:
 
     def update_cluster(self) -> None | np.ndarray:
         """
-        Update the cluster by computing the centroids.
+        Update the cluster by computing the centroid. This method collects all the 
+        references to the cluster assignments and mapper items before calling ray.get().
 
         Returns:
-            None | np.ndarray: The computed centroids, or None if an error occurs.
+            None | np.ndarray: The computed centroid, or None if an error occurs.
         """
-        cost = 0.0
-        cluster_output = np.empty((0, self.cluster_output.shape[1]))
+        cluster_assignment_refs = [
+            kmeans_map.assign_cluster.remote() for kmeans_map in self.kmeans_maps
+        ]
+        mapper_items_refs = [
+            kmeans_map.read_items.remote() for kmeans_map in self.kmeans_maps
+        ]
 
-        for kmeans_map in self.kmeans_maps:
-            cluster_assignment = ray.get(kmeans_map.assign_cluster.remote())
-            cost += np.sum(cluster_assignment[:, 1])
-            cluster_indices = np.where(cluster_assignment[:, 0] == self.value)[0]
-            points_in_cluster = ray.get(kmeans_map.read_item.remote())[cluster_indices]
-            cluster_output = np.concatenate((cluster_output, points_in_cluster), axis=0)
+        cluster_assignments = ray.get(cluster_assignment_refs)
 
-        self.cost = cost
-        self.cluster_output = cluster_output
-        self.centroids = np.mean(cluster_output, axis=0)
-
-        return self.centroids
+        self.cost = np.sum(
+            [
+                np.sum(cluster_assignment[:, 1])
+                for cluster_assignment in cluster_assignments
+            ]
+        )
+        cluster_indices_all = [
+            np.where(cluster_assignment[:, 0] == self.value)[0]
+            for cluster_assignment in cluster_assignments
+        ]
+        mapper_items_all = ray.get(mapper_items_refs)
+        self.cluster_output = np.array(
+            [
+                mapper_items[cluster_indices]
+                for mapper_items, cluster_indices, in zip(
+                    mapper_items_all, cluster_indices_all
+                )
+            ]
+        )
+        self.centroid = np.mean(self.cluster_output, axis=0)
+        return self.centroid

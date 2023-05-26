@@ -65,6 +65,15 @@ class KMeansMap:
         """
         return self.cluster_assignments
 
+    def read_items(self):
+        """
+        Reads the input array of items.
+
+        Returns:
+            np.ndarray: The input array of items
+        """
+        return self.items
+
     def assign_clusters(self) -> np.ndarray:
         """
         Assigns clusters to each item.

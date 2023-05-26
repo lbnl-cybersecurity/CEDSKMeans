@@ -148,9 +148,7 @@ def calculate_distance_matrix(center: np.ndarray) -> np.ndarray:
     return distance_matrix
 
 
-def create_new_cluster(
-    reducers: list[KMeansReduce], n_features: int
-) -> tuple[np.ndarray, float]:
+def create_new_cluster(reducers: list[KMeansReduce]) -> tuple[np.ndarray, float]:
     """
     Creates a new cluster by combining clusters from multiple KMeansReduce objects.
 
@@ -162,12 +160,14 @@ def create_new_cluster(
         A tuple containing the new cluster as a NumPy array and the total cost.
 
     """
-    total_cost = 0
-    combined_cluster = np.empty((0, n_features))
-
+    cluster_refs = []
+    cost_refs = []
     for reducer in reducers:
-        partial_cluster = ray.get(reducer.update_cluster.remote())
-        combined_cluster = np.vstack((partial_cluster, combined_cluster))
-        total_cost += ray.get(reducer.read_cost.remote())
-
-    return combined_cluster, total_cost
+        cluster_refs.append(reducer.update_cluster.remote())
+        cost_refs.append(reducer.read_cost.remote())
+    # TODO: In the KMeansReduce class, the update_cluster method should be first
+    # called and only at its conclusion should the read_cost method be called.
+    # So, should the cost_refs be gathered after ray.get(cluster_refs)?
+    combined_cluster = ray.get(cluster_refs)
+    total_cost = ray.get(cost_refs)
+    return np.array(combined_cluster), np.sum(total_cost)

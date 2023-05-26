@@ -18,6 +18,7 @@ from ._map_reduce import (
 )
 
 
+@ray.remote
 class KMeansMapReduce(KMeans):
     def __init__(
         self,
@@ -54,7 +55,6 @@ class KMeansMapReduce(KMeans):
         center = initialize_clusters(X.values, self.n_clusters)
         distance_matrix = calculate_distance_matrix(center)
 
-        ray.init()
         mappers = [
             KMeansMap.remote(mini_batch.values, k=self.n_clusters)
             for mini_batch in batches[0]
@@ -73,7 +73,7 @@ class KMeansMapReduce(KMeans):
             for mapper in mappers:
                 mapper.assign_cluster.remote()
 
-            new_center, cost[i] = create_new_cluster(reducers, self.n_features_out)
+            new_center, cost[i] = create_new_cluster(reducers)
             changed, _ = has_cluster_changed(new_center, center)
             if not changed:
                 break
