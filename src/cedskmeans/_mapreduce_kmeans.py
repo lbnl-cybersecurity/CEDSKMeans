@@ -18,7 +18,8 @@ from ._map_reduce import (
 )
 
 
-@ray.remote
+# There is a bug in sklearn get_params() function that prevents us from using
+# the ray.remote decorator. As a workaround, I created a runner method. See below.
 class KMeansMapReduce(KMeans):
     def __init__(
         self,
@@ -56,22 +57,24 @@ class KMeansMapReduce(KMeans):
         distance_matrix = calculate_distance_matrix(center)
 
         mappers = [
-            KMeansMap.remote(mini_batch.values, k=self.n_clusters)
-            for mini_batch in batches[0]
+            KMeansMap.remote(mini_batch.values, num_clusters=self.n_clusters)
+            for mini_batch in batches
         ]
         reducers = [
             KMeansReduce.remote(i, self.n_features_out, *mappers)
             for i in range(self.n_clusters)
         ]
 
-        cost = np.empty((self.iteration, 1))
-        for i in tqdm(range(self.iteration)):
-            for mapper in mappers:
-                mapper.communicate_centroids.remote(center)
-                mapper.communicate_distances.remote(distance_matrix)
-
-            for mapper in mappers:
-                mapper.assign_cluster.remote()
+        cost = np.empty((self.max_iter, 1))
+        for i in tqdm(range(self.max_iter)):
+            ray.get(
+                [mapper.communicate_centroids.remote(center) for mapper in mappers]
+                + [
+                    mapper.communicate_distances.remote(distance_matrix)
+                    for mapper in mappers
+                ]
+            )
+            ray.get([mapper.assign_clusters.remote() for mapper in mappers])
 
             new_center, cost[i] = create_new_cluster(reducers)
             changed, _ = has_cluster_changed(new_center, center)
@@ -85,3 +88,12 @@ class KMeansMapReduce(KMeans):
         self.n_iter_ = i
 
         return self
+
+
+@ray.remote
+def KMeansMapReduceRunner(X, **kwargs):
+    kmeans = KMeansMapReduce(
+        **kwargs,
+    )
+    kmeans.fit(X)
+    return kmeans

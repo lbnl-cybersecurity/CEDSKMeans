@@ -49,14 +49,14 @@ class KMeansReduce:
 
     def update_cluster(self) -> None | np.ndarray:
         """
-        Update the cluster by computing the centroid. This method collects all the 
+        Update the cluster by computing the centroid. This method collects all the
         references to the cluster assignments and mapper items before calling ray.get().
 
         Returns:
             None | np.ndarray: The computed centroid, or None if an error occurs.
         """
         cluster_assignment_refs = [
-            kmeans_map.assign_cluster.remote() for kmeans_map in self.kmeans_maps
+            kmeans_map.assign_clusters.remote() for kmeans_map in self.kmeans_maps
         ]
         mapper_items_refs = [
             kmeans_map.read_items.remote() for kmeans_map in self.kmeans_maps
@@ -75,7 +75,7 @@ class KMeansReduce:
             for cluster_assignment in cluster_assignments
         ]
         mapper_items_all = ray.get(mapper_items_refs)
-        self.cluster_output = np.array(
+        self.cluster_output = np.concatenate(
             [
                 mapper_items[cluster_indices]
                 for mapper_items, cluster_indices, in zip(

@@ -18,10 +18,13 @@ class KMeansMap:
         distances_matrix (np.ndarray): The matrix containing pre-calculated distances between centroids.
     """
 
+    centroids = 0
+
     def __init__(self, items: np.ndarray, num_clusters: int = 1):
         self.items = items
         self.num_clusters = num_clusters
         self.cluster_assignments = None
+        self.centroids = None
         self.distances_matrix = None
 
     def communicate_centroids(self, centroids: np.ndarray):
