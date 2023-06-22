@@ -4,7 +4,6 @@ import numpy as np
 import numpy.typing as npt
 import pandas as pd
 import ray
-from sklearn.cluster import KMeans
 from tqdm import tqdm
 
 from ._map_reduce import (
@@ -16,14 +15,17 @@ from ._map_reduce import (
     initialize_clusters,
     split_data,
 )
+from ._cedskmeans import CEDSKMeans
 
 
 # There is a bug in sklearn get_params() function that prevents us from using
 # the ray.remote decorator. As a workaround, I created a runner method. See below.
-class KMeansMapReduce(KMeans):
+class KMeansMapReduce(CEDSKMeans):
     def __init__(
         self,
         n_clusters: int = 20,
+        dp_epsilon: float = 0.1,
+        dp_delta: float = 0.1,
         n_mappers: int = 5,
         *,
         init: Literal["random", "k-means++"] = "k-means++",
@@ -45,6 +47,8 @@ class KMeansMapReduce(KMeans):
             random_state=random_state,
             copy_x=copy_x,
             algorithm=algorithm,
+            dp_epsilon=dp_epsilon,
+            dp_delta=dp_delta,
         )
         self.n_mappers = n_mappers
         self.cluster_centers_ = None
@@ -83,15 +87,20 @@ class KMeansMapReduce(KMeans):
             else:
                 center = new_center
                 distance_matrix = calculate_distance_matrix(center)
-        self.cluster_centers_ = center
         self.cost = cost[-1]
         self.n_iter_ = i
-
+        self.true_cluster_centers_ = center
+        self._n_features_out = center.shape[0]
+        self.true_labels_ = None  # TODO: add labels
+        self.inertia_ = None  # TODO: add inertia
+        self.n_iter_ = i
+        self.cluster_centers_ = center
+        # self._add_dp_noise(X)  # TODO: test this
         return self
 
 
 @ray.remote
-def KMeansMapReduceRunner(X, **kwargs):
+def kMeansMapReduceRunner(X, **kwargs):
     kmeans = KMeansMapReduce(
         **kwargs,
     )
