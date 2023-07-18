@@ -3,11 +3,11 @@ name = "cedskmeans"
 version = "0.1.0"
 description = "A Differentially Private K-Means Clustering algorithm."
 authors = ["Nikhil Ravi <nr337@cornell.edu>"]
-license = "BSD-3-Clause"
+license = "Proprietary"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.10.8"
+python = "3.10.9"
 scikit-learn = "^1.2.2"
 numpy = "^1.24.2"
 sympy = "^1.11.1"
@@ -16,7 +16,7 @@ scipy = "^1.10.1"
 joblib = "^1.2.0"
 pyspark = "^3.4.0"
 pytz = "^2023.3"
-ray = "^2.4.0"
+ray = {extras = ["tune"], version = "^2.5.1"}
 tqdm = "^4.65.0"
 
 [tool.poetry.group.dev.dependencies]
