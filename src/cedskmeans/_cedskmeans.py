@@ -1,6 +1,8 @@
 from typing import Literal
 import numpy as np
+from numpy import ndarray
 import numpy.typing as npt
+from sklearn._typing import ArrayLike, MatrixLike
 from sklearn.cluster import KMeans
 import sympy
 
@@ -60,19 +62,15 @@ class CEDSKMeans(KMeans):
         """Compute k-means clustering.
 
         Args:
-            X (npt.NDArray): Training instances to cluster  of shape (n_samples, n_features).
-            It must be noted that the data will be converted to C ordering,
-            which will cause a memory copy if the given data is not C-contiguous.
-            If a sparse matrix is passed, a copy will be made if it's not in
-            CSR format.
+            X (npt.NDArray): Training instances to cluster  of shape (n_samples, n_features). It must be noted that the data will be converted to C ordering, which will cause a memory copy if the given data is not C-contiguous. If a sparse matrix is passed, a copy will be made if it's not in CSR format. 
             y (npt.NDArray): Ignored. Not used, present here for API consistency by convention.
-            sample_weight (npt.ArrayLike): The weights for each observation in X.
-            If None, all observations are assigned equal weight. Defaults to None.
+            sample_weight (npt.ArrayLike): The weights for each observation in X. If None, all observations are assigned equal weight. Defaults to None.
 
         Returns:
             self (object): Fitted estimator.
         """
         self.true_cluster_centers_ = None
+        self.cluster_centers_ = None
         self._n_features_out = None
         self.true_labels_ = None
         self.inertia_ = None
@@ -97,12 +95,7 @@ class CEDSKMeans(KMeans):
         """Calculates the differentially private color noise covariance matrix [1].
 
         Args:
-            X (npt.NDArray): Training instances to cluster. Of shape (n_samples, n_features)
-            Training instances to cluster. It must be noted that the data
-            will be converted to C ordering, which will cause a memory
-            copy if the given data is not C-contiguous.
-            If a sparse matrix is passed, a copy will be made if it's not in
-            CSR format.
+            X (npt.NDArray): Training instances to cluster. Of shape (n_samples, n_features).Training instances to cluster. It must be noted that the data will be converted to C ordering, which will cause a memory copy if the given data is not C-contiguous. If a sparse matrix is passed, a copy will be made if it's not in CSR format.
 
         Returns:
             npt.NDArray: DP covariance matrix of shape (n_clusters * n_features, n_clusters * n_features).

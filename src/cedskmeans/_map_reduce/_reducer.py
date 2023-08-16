@@ -2,7 +2,7 @@ import numpy as np
 import ray
 
 
-@ray.remote
+@ray.remote(num_cpus=1)
 class KMeansReduce:
     """
     Class representing a K-Means reducer.

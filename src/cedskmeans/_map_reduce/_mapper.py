@@ -2,7 +2,7 @@ import numpy as np
 import ray
 
 
-@ray.remote
+@ray.remote(num_cpus=1)
 class KMeansMap:
     """
     A remote Ray class for performing K-means clustering map tasks.
@@ -68,7 +68,7 @@ class KMeansMap:
         """
         return self.cluster_assignments
 
-    def read_items(self):
+    def read_items(self) -> np.ndarray:
         """
         Reads the input array of items.
 
