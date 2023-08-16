@@ -39,7 +39,7 @@ true_centroids = kmeans.true_cluster_centers_
 
 ## Distributed Map Reduce Usage (requires `ray`)
 ```python
-from cedskmeans import KMeansReduce
+from cedskmeans import kMeansMapReduceRunner
 import ray
 
 # Import the data
@@ -47,26 +47,20 @@ X = "Import data here in the form of a numpy ndarray"
 
 ray.init()
 # Create a CEDSKMeans object
-kmeans = KMeansReduce(
+kmeans = kMeansMapReduceRunner.remote(
+    X=X,
     n_clusters=6,
+    n_mappers=5
     max_iter=1000
-    # epsilon=0.1, # TODO: Add support for DP
-    # delta=1e-5, # TODO: Add support for DP
+    epsilon=0.1, 
+    delta=1e-5, 
 )
-kmeans = kmeans.fit.remote(X)
 kmeans = ray.get(kmeans)
 
-
 # Access the labels
-labels = kmeans.labels_ # TODO: Add support for centralized labels
+labels = kmeans.labels_ 
 # Access the centroids
 centroids = kmeans.cluster_centers_
-
-# TODO: Add support for DP
-# # Access the true labels
-# true_labels = kmeans.true_labels_
-# # Access the true centroids
-# true_centroids = kmeans.true_cluster_centers_
 ```
 
 ## Copyright Notice
