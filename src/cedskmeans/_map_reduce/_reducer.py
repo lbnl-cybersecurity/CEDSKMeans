@@ -21,7 +21,7 @@ class KMeansReduce:
     """
 
     def __init__(
-        self, value: int, n_features: int, *kmeans_maps: list[ray.actor.ActorHandle]
+        self, value: int, n_features: int, *kmeans_maps: ray.actor.ActorHandle
     ) -> None:
         self.value = value
         self.kmeans_maps = kmeans_maps

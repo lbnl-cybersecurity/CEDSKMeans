@@ -1,10 +1,12 @@
-from cedskmeans import kMeansMapReduceRunner, KMeansMapReduce
-import pandas as pd
-from sklearn.datasets import make_blobs
-from typing import Literal
-import ray
 from dataclasses import dataclass
+from typing import Literal
+
 import numpy as np
+import pandas as pd
+import ray
+from sklearn.datasets import make_blobs
+
+from cedskmeans import KMeansMapReduce, run_kmean_map_reduce
 
 
 @dataclass
@@ -90,7 +92,7 @@ def prepare_data(
         )
 
 
-def run(
+def kMeansMapReduceRun(
     n_samples: int = 1000,
     n_features: int = 2,
     n_clusters: int = 5,
@@ -116,7 +118,7 @@ def run(
         num_mappers=n_mappers,
     )
     pipeline: KMeansMapReduce = ray.get(
-        kMeansMapReduceRunner.remote(
+        run_kmean_map_reduce.remote(
             n_clusters=dataset.n_clusters,  # type: ignore
             max_iter=dataset.n_iter,
             n_mappers=dataset.n_mappers,

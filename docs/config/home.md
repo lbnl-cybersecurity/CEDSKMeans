@@ -39,19 +39,19 @@ true_centroids = kmeans.true_cluster_centers_
 
 ## Distributed Map Reduce Usage (requires `ray`)
 ```python
-from cedskmeans import kMeansMapReduceRunner
+from cedskmeans import run_kmean_map_reduce
 import ray
 
 # Import the data
-X = "Import data here in the form of a numpy ndarray"
+X = "Import data here in the form of a pandas dataframe"
 
 ray.init()
 # Create a CEDSKMeans object
-kmeans = kMeansMapReduceRunner.remote(
+kmeans = run_kmean_map_reduce.remote(
     X=X,
-    n_clusters=6,
-    n_mappers=5
-    max_iter=1000
+    n_clusters=3,
+    n_mappers=2,
+    max_iter=1000,
     epsilon=0.1, 
     delta=1e-5, 
 )

@@ -88,9 +88,6 @@ class KMeansMap:
         self.cluster_assignments = np.zeros((num_items, 2))
 
         for i in range(num_items):
-            min_distance = np.inf
-            min_index = -1
-
             min_index, min_distance = KMeansMap.find_closest_centroid(
                 self.num_clusters, self.centroids, self.items, i, self.distances_matrix
             )

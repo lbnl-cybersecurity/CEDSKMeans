@@ -5,6 +5,7 @@ import numpy.typing as npt
 import pandas as pd
 import ray
 
+from ._cedskmeans import CEDSKMeans
 from ._map_reduce import (
     KMeansMap,
     KMeansReduce,
@@ -14,7 +15,6 @@ from ._map_reduce import (
     initialize_clusters,
     split_data,
 )
-from ._cedskmeans import CEDSKMeans
 
 
 # There is a bug in sklearn get_params() function that prevents us from using
@@ -105,10 +105,10 @@ class KMeansMapReduce(CEDSKMeans):
         self.n_iter_ = i
         self.true_cluster_centers_ = center
         self._n_features_out = center.shape[0]
-        self.true_labels_ = self.predict(X)  
+        self.true_labels_ = self.predict(X)
         self.n_iter_ = i
         self.cluster_centers_ = center
-        # self._add_dp_noise(X)  
+        self._add_dp_noise(X)
         return self
 
     def predict(self, X: pd.DataFrame, dp: bool = False) -> np.ndarray:
@@ -135,9 +135,7 @@ class KMeansMapReduce(CEDSKMeans):
             center = self.true_cluster_centers_
         if isinstance(X, pd.DataFrame):
             X = X.values
-        distances = np.array(
-            [euclidean_distance(x, c) for x in X for c in center]
-        )
+        distances = np.array([euclidean_distance(x, c) for x in X for c in center])
         distances = distances.reshape(X.shape[0], self.n_clusters)
         return np.argmin(distances, axis=1)
 
@@ -157,7 +155,7 @@ def euclidean_distance(point1: np.ndarray, point2: np.ndarray) -> float:
 
 
 @ray.remote(num_cpus=1)
-def kMeansMapReduceRunner(X, **kwargs) -> KMeansMapReduce:
+def run_kmean_map_reduce(X, **kwargs) -> KMeansMapReduce:
     """
     Run the KMeansMapReduce class.
     This is a workaround for the bug in sklearn get_params() function that prevents us from using the ray.remote decorator.
