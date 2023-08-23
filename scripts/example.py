@@ -3,7 +3,7 @@ import ray
 from sklearn.datasets import make_blobs
 
 from cedskmeans import DPKMeans
-from cedskmeans import kMeansMapReduceRunner
+from cedskmeans import run_kmean_map_reduce
 
 
 def get_data():
@@ -35,7 +35,7 @@ def single_process_demo(X) -> None:
 
 def distributed_demo(X):
     # Create a CEDSKMeans object
-    kmeans = kMeansMapReduceRunner.remote(
+    kmeans = run_kmean_map_reduce.remote(
         X=X,
         n_clusters=3,
         n_mappers=2,
