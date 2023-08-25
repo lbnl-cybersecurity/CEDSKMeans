@@ -1,0 +1,71 @@
+site_name: CEDS-KMeans
+site_url: https://secpriv.lbl.gov/research/ceds/
+docs_dir: "docs/config"
+site_dir: "docs/build"
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+          options:
+            members: true
+            # inherited-members: true
+            filters: []
+            show_submodules: true
+            signature_crossrefs: true
+            show_root_toc_entry: false
+  - git-revision-date-localized:
+      enable_creation_date: true
+theme:
+  name: material
+  highlightjs: true
+  features:
+    - content.action.edit
+    - content.action.view
+    - navigation.instant
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+watch:
+  - src
+
+markdown_extensions:
+    - smarty
+    - toc:
+        permalink: True
+    - sane_lists
+
+nav:
+  - Home: home.md
+  - CEDS KMeans: index.md
+
+
+repo_url: https://github.com/lbnl-cybersecurity/CEDSKMeans/tree/map-reduce
+repo_name: lbnl-cybersecurity/CEDSKMeans
+edit_uri: tree/main/docs/config
