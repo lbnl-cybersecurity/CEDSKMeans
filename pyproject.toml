@@ -5,6 +5,7 @@ description = "A Differentially Private K-Means Clustering algorithm."
 authors = ["Nikhil Ravi <nr337@cornell.edu>", "Brent Vastola-Lunghino <brent@kevala.com>", "Anna Scaglione <as337@cornell.edu>", "Sean Peisert <sppeisert@lbl.gov>"]
 license = "BSD-3-Clause-Modified"
 packages = [{include = "cedskmeans", from = "src"}]
+exclude = ["scripts"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
