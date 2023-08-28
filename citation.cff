@@ -5,11 +5,11 @@ authors:
     given-names: Nikhil
     // orcid: https://orcid.org/1234-5678-9101-1121
   - family-names: Vastola-Lunghino
-    given-name: Brent
+    given-names: Brent
   - family-names: Scaglione
     given-name: Anna
   - family-names: Peisert
-    given-name: Sean
+    given-names: Sean
 title: "CEDS K-Means using Differentially Private K-Means Clustering Applied to Meter Data Analysis and Synthesis"
 version: 0.1.0
 doi: 10.1109/TSG.2022.3184252
