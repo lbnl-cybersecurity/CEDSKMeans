@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Ravi
+    given-names: Nikhil
+    // orcid: https://orcid.org/1234-5678-9101-1121
+  - family-names: Vastola-Lunghino
+    given-name: Brent
+  - family-names: Scaglione
+    given-name: Anna
+  - family-names: Peisert
+    given-name: Sean
+title: "CEDS K-Means using Differentially Private K-Means Clustering Applied to Meter Data Analysis and Synthesis"
+version: 0.1.0
+doi: 10.1109/TSG.2022.3184252
+date-released: 2022-06-17
+url: "https://github.com/lbnl-cybersecurity/CEDSKMeans/tree/main"
