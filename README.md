@@ -5,6 +5,8 @@ This repository contains the code for the CEDS Data Product K-Means Clustering. 
 [1] Ravi, Nikhil, et al. "Differentially Private-Means Clustering Applied to Meter Data Analysis and Synthesis." IEEE Transactions on Smart Grid 13.6 (2022): 4801-4814.  
 [2] Ravi, Nikhil, Anna Scaglione, and Sean Peisert. "Colored noise mechanism for differentially private clustering." arXiv preprint arXiv:2111.07850 (2021).
 
+This software implements K-means clustering to power grid advanced metering infrastructure (AMI) data to obtain customer labels and centroids for a set of load time series by applying the framework of differential privacy.  This is useful to generate differentially private synthetic load data consistent with the labeled data.
+
 ## Installation
 ```shell
 pip install git+https://github.com/lbnl-cybersecurity/CEDSKMeans.git
